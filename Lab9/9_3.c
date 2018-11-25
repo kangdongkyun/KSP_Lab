@@ -3,70 +3,77 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-sigset_t new;
-int flag,t;
-void printHandler(int signo){
-	printf("Received Signal : %s\n",strsignal(signo));;
+
+int flag, t;
+sigset_t set;
+
+void printSig(int sig){
+	printf("Received Signal : %s\n", strsignal(sig));
 }
-void blockHandler(int signo){
+void blockSignal(int signo){
 	if(flag == 0){
 		printf("Do Not Disturb mode on!\n");
-//		sigprocmask(SIG_BLOCK, &new, (sigset_t *)NULL);
 		flag = 1;
+		t = 1;
 	}
-	else {
-//		sigprocmask(SIG_UNBLOCK, &new, (sigset_t *)NULL);
+	else{
 		printf("Do Not Disturb mode off!\n");
-		printf("[During the DND mode]\n");
 		flag = 0;
+		t = 0;
+		printf("[During the DND mode]\n");
 	}
 }
+
 void setSignal(int f){
 	if(f == 0){
-		for(int i=1;i<=64;i++){
-			if(i==SIGKILL||i==SIGSTOP || i== SIGUSR1){}
-			else {
-				if(signal(i,printHandler)==SIG_ERR) continue;
-			}
-		}
-	}
-	else if(f==1){
-		for(int i=1;i<=64;i++){
-			if(i==SIGKILL||SIGSTOP||i==SIGUSR1){}
+		for(int i= 1; i<=64; i++){
+			if(i == SIGKILL || i == SIGSTOP || i == SIGUSR1){}
 			else{
-				if(signal(i,SIG_DFL)==SIG_ERR){
+				if(signal(i, printSig) == SIG_ERR){
 					continue;
 				}
 			}
 		}
 	}
-}
-int main(){
-	flag = 0;
-	t=0;
-	sigemptyset(&new);
-
-	if(signal(SIGUSR1, blockHandler) == SIG_ERR){
-		perror("error");
-		exit(1);
+	else if(f == 1){
+		for(int i= 1; i<=64; i++){
+			if(i == SIGKILL || i == SIGSTOP || i == SIGUSR1){}
+			else{
+				if(signal(i, SIG_DFL) == SIG_ERR){
+					continue;
+				}
+			}				
+		}
 	}
-	sigfillset(&new);
-	sigdelset(&new,SIGUSR1);
+}
+
+
+int main(void){
+	flag = 0;
+	t = 0;
+
+	if(signal(SIGUSR1, blockSignal) == SIG_ERR){
+		fprintf(stderr, "Cannot Handle SIGUSR1");
+		exit(EXIT_FAILURE);
+	}
+	sigfillset(&set);
+	sigdelset(&set, SIGUSR1);
 
 	while(1){
-		if(flag==1&&t==1){
-			sigprocmask(SIG_BLOCK,&new,(sigset_t*)NULL);
-			t=0;
-			
+		if(flag == 1 && t == 1){
+			sigprocmask(SIG_BLOCK, &set, (sigset_t *)NULL);
+			t = 0;
 		}
-		else if(flag == 0&&t == 0){
+		else if(flag == 0 && t == 0){
 			setSignal(0);
-			sigprocmask(SIG_UNBLOCK, &new, (sigset_t*) NULL);
-			t=1;	
+			sigprocmask(SIG_UNBLOCK, &set, (sigset_t *)NULL);
+			t = 1;
 		}
 		else{
 			setSignal(1);
 		}
-	}	
+	}
+
 	return 0;
 }
+

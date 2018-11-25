@@ -16,15 +16,17 @@ int main(int argc,char *argv[]) {
 
 	addr=  mmap(0, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
 
-
+	int num;
 	close(fd);
 	while(1){
+//		msync(addr,getpagesize(),MS_SYNC);
 		if(addr[4] ==  1) {
 			printf("게임 끝\n");
 			exit(1);
 		}
 		for(int i=0;i<3;i++){
 			scanf("%d",&addr[i]);
+			
 		}
 		addr[3] =1;
 		printf("ok\n");

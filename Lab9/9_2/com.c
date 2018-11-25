@@ -21,7 +21,7 @@ int main(int argc,char* argv[]){
 
 	addr = mmap(0, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
     	CHECK_MMAP_SUCCESS(addr);
-
+	addr[4]=0;
 	close(fd);
 	srand(time(NULL));
 	for(int i=0;i<3;i++){
