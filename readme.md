@@ -6,4 +6,4 @@
 <p>Compiler : gcc</p>
 
 <h2>reference</h2>
-<a>Prof : kim duck soo </a> : <a>https://sites.google.com/view/duksukim/courses/system-programming</a>
+<a href="https://sites.google.com/view/duksukim/courses/system-programming">Prof.kim</a>
